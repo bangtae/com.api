@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="C:/com.bangtae/library/httpcomponents-client-4.5.10-bin/httpcomponents-client-4.5.10/lib/commons-codec-1.11.jar"/>
+	<classpathentry kind="lib" path="C:/com.bangtae/library/httpcomponents-client-4.5.10-bin/httpcomponents-client-4.5.10/lib/commons-logging-1.2.jar"/>
+	<classpathentry kind="lib" path="C:/com.bangtae/library/httpcomponents-client-4.5.10-bin/httpcomponents-client-4.5.10/lib/fluent-hc-4.5.10.jar"/>
+	<classpathentry kind="lib" path="C:/com.bangtae/library/httpcomponents-client-4.5.10-bin/httpcomponents-client-4.5.10/lib/httpclient-4.5.10.jar"/>
+	<classpathentry kind="lib" path="C:/com.bangtae/library/httpcomponents-client-4.5.10-bin/httpcomponents-client-4.5.10/lib/httpclient-cache-4.5.10.jar"/>
+	<classpathentry kind="lib" path="C:/com.bangtae/library/httpcomponents-client-4.5.10-bin/httpcomponents-client-4.5.10/lib/httpclient-osgi-4.5.10.jar"/>
+	<classpathentry kind="lib" path="C:/com.bangtae/library/httpcomponents-client-4.5.10-bin/httpcomponents-client-4.5.10/lib/httpclient-win-4.5.10.jar"/>
+	<classpathentry kind="lib" path="C:/com.bangtae/library/httpcomponents-client-4.5.10-bin/httpcomponents-client-4.5.10/lib/httpcore-4.4.12.jar"/>
+	<classpathentry kind="lib" path="C:/com.bangtae/library/httpcomponents-client-4.5.10-bin/httpcomponents-client-4.5.10/lib/httpmime-4.5.10.jar"/>
+	<classpathentry kind="lib" path="C:/com.bangtae/library/commons-httpclient-3.1.0.jar/commons-httpclient-3.1.0.jar"/>
+	<classpathentry kind="lib" path="C:/com.bangtae/library/com.fasterxml.jackson.databind.jar/com.fasterxml.jackson.databind.jar"/>
+	<classpathentry kind="lib" path="C:/com.bangtae/library/java-json.jar/java-json.jar"/>
+	<classpathentry kind="lib" path="C:/com.bangtae/library/mysql-connector-java-5.1.48/mysql-connector-java-5.1.48/mysql-connector-java-5.1.48.jar"/>
+	<classpathentry kind="lib" path="C:/com.bangtae/library/apache_xmlrpc/ws-commons-util-1.0.2.jar"/>
+	<classpathentry kind="lib" path="C:/com.bangtae/library/apache_xmlrpc/xmlrpc-client-3.1.3.jar"/>
+	<classpathentry kind="lib" path="C:/com.bangtae/library/apache_xmlrpc/xmlrpc-common-3.1.3.jar"/>
+	<classpathentry kind="lib" path="C:/com.bangtae/library/apache_xmlrpc/xmlrpc-server-3.1.3.jar"/>
+	<classpathentry kind="lib" path="C:/com.bangtae/library/jsoup-1.12.1.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
