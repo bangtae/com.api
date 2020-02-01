@@ -8,7 +8,7 @@ import org.jsoup.select.Elements;
 
 public class JsoupParser2 {
 	public static void main(String[] args) {
-		String url = "https://search.naver.com/search.naver?sm=top_hty&fbm=1&ie=utf8&query=+%ED%95%98%ED%8F%AC%EC%8A%A4%EC%B9%A8%EB%8C%80+%ED%8A%B9%EB%B3%84%ED%95%A0%EC%9D%B8+%ED%8F%89%EC%83%81%ED%98%95%EC%B9%A8%EB%8C%80";
+		String url = "https://search.naver.com/search.naver?sm=top_hty&fbm=1&ie=utf8&query=비크래프트 프로폴리스 무설탕 기침 목사탕 키즈용 30정, 1개, 45g";
 		Document doc = null;
 		StringBuilder reviewSB = new StringBuilder();
 		
@@ -36,10 +36,9 @@ public class JsoupParser2 {
 		
 		String[] reviewArray = review.split("\\!@#");
 		String[] reviewUrlArray = review_url.split("\\!@#");
-		for (int i = 0; i < reviewArray.length; i++) {
-			reviewSB.append(reviewArray[i] + reviewUrlArray[i] + "<br />");
-			reviewSB.append("<br />");
-		}
+//		for (int i = 0; i < reviewArray.length; i++) {
+			reviewSB.append(reviewArray[1] + reviewUrlArray[1] + "<br />");
+//		}
 		
 		System.out.println(reviewSB.toString());
 		

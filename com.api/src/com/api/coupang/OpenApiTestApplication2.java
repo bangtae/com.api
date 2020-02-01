@@ -39,7 +39,7 @@ public final class OpenApiTestApplication2 {
 
     public static void main(String[] args) throws IOException {
     	//------------------------ Product Data is Coupang API -> List, Map ------------------------
-    	String keyword = "할인";
+    	String keyword = "공기정화";
     	String convertKeyword = URLEncoder.encode(keyword, "utf-8");
     	System.out.println("convertKeyword = " + convertKeyword);
 

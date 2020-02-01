@@ -1,0 +1,60 @@
+■ 로직설계(GOUPANG -> NAVER BLOG)
+1. 쿠팡 API를 통해 상품데이터를 추출
+REST로 받은 데이터를 XML로 변환
+2. 추출된 상품데이터를 로컬 DB에 저장
+3. DB에 있는 상품데이터를 네이버블로그에 전송
+DB에 있는 데이터를 XML-RPC 규약에 맞게 가공하여 네이버블로그에 전송
+
+■ 트러블슈팅
+org.apache.xmlrpc.XmlRpcException: fail authentication
+-> contents.put("description".. 구문에 소스를 수정했는데 에러가 발생 원복후 정상
+
+Wed Jan 29 20:25:56 KST 2020 WARN: Establishing SSL connection without server's identity verification is not recommended. According to MySQL 5.5.45+, 5.6.26+ and 5.7.6+ requirements SSL connection must be established by default if explicit option isn't set. For compliance with existing applications not using SSL the verifyServerCertificate property is set to 'false'. You need either to explicitly disable SSL by setting useSSL=false, or set useSSL=true and provide truststore for server certificate verification.
+Product Name = 추리 천재 엉덩이 탐정 1~2권 세트, 아이세움
+rollback!!
+java.lang.IllegalArgumentException: Numbers of source Raster bands and source color space components do not match
+ResultSet closed !!
+preparedStmt closed !!
+	at java.awt.image.ColorConvertOp.filter(Unknown Source)
+	at com.sun.imageio.plugins.jpeg.JPEGImageReader.acceptPixels(Unknown Source)
+	at com.sun.imageio.plugins.jpeg.JPEGImageReader.readImage(Native Method)
+	at com.sun.imageio.plugins.jpeg.JPEGImageReader.readInternal(Unknown Source)
+	at com.sun.imageio.plugins.jpeg.JPEGImageReader.read(Unknown Source)
+	at javax.imageio.ImageIO.read(Unknown Source)
+	at javax.imageio.ImageIO.read(Unknown Source)
+	at com.api.naver.blog.XmlRpcNaverBlog.uploadImg(XmlRpcNaverBlog.java:304)
+	at com.api.naver.blog.XmlRpcNaverBlog.main(XmlRpcNaverBlog.java:103)
+Connection closed !!
+-> 갑자기 에러 발생, 해당 데이터 삭제후 정상
+
+Product Name = 노프 미세먼지마스크 KF94 블랙 2매, 1박스, 2개
+rollback!!
+javax.imageio.IIOException: Unsupported Image Type
+	at com.sun.imageio.plugins.jpeg.JPEGImageReader.readInternal(Unknown Source)
+	at com.sun.imageio.plugins.jpeg.JPEGImageReader.read(Unknown Source)
+	at javax.imageio.ImageIO.read(Unknown Source)
+	at javax.imageio.ImageIO.read(Unknown Source)
+	at com.api.naver.blog.XmlRpcNaverBlog.uploadImg(XmlRpcNaverBlog.java:300)
+	at com.api.naver.blog.XmlRpcNaverBlog.main(XmlRpcNaverBlog.java:103)
+ResultSet closed !!
+preparedStmt closed !!
+Connection closed !!
+-> 해당데이터 제거 후 정상
+
+Product Name = 자신만만 해법한글 2단계 특가 세트, 천재교육
+rollback!!
+ResultSet closed !!
+preparedStmt closed !!
+Connection closed !!
+org.apache.xmlrpc.XmlRpcException: org.apache.xmlrpc.XmlRpcException: 파일을 첨부하는 동안 오류가 발생했습니다.
+	at org.apache.xmlrpc.client.XmlRpcStreamTransport.readResponse(XmlRpcStreamTransport.java:197)
+	at org.apache.xmlrpc.client.XmlRpcStreamTransport.sendRequest(XmlRpcStreamTransport.java:156)
+	at org.apache.xmlrpc.client.XmlRpcHttpTransport.sendRequest(XmlRpcHttpTransport.java:143)
+	at org.apache.xmlrpc.client.XmlRpcSunHttpTransport.sendRequest(XmlRpcSunHttpTransport.java:69)
+	at org.apache.xmlrpc.client.XmlRpcClientWorker.execute(XmlRpcClientWorker.java:56)
+	at org.apache.xmlrpc.client.XmlRpcClient.execute(XmlRpcClient.java:167)
+	at org.apache.xmlrpc.client.XmlRpcClient.execute(XmlRpcClient.java:158)
+	at org.apache.xmlrpc.client.XmlRpcClient.execute(XmlRpcClient.java:147)
+	at com.api.naver.blog.XmlRpcNaverBlog.uploadImg(XmlRpcNaverBlog.java:314)
+	at com.api.naver.blog.XmlRpcNaverBlog.main(XmlRpcNaverBlog.java:103)
+-> 재실행 후 정상	

@@ -53,6 +53,7 @@ public class XmlRpcNaverBlog {
 		String keyword = "";
 		String productName = "";
 		String productPrice = "";
+		String productIsRocket = "";
 		String blogDate = "";
     	
         try {
@@ -81,11 +82,21 @@ public class XmlRpcNaverBlog {
 			int blog_posting_count = 1;
 			
 			while (rs.next()) {
-				System.out.println("Product Name = " + rs.getString(6));
+			    productImage = rs.getString(1);
+				productId = rs.getString(2);
+				productUrl = rs.getString(3);
+				keyword = rs.getString(4);
+				rank = rs.getString(5);
+				productName = rs.getString(6);
+				productPrice = formatter.format(Integer.parseInt(rs.getString(8)));
+				productIsRocket = rs.getString(9);
+				blogDate = String.valueOf(startDate);
+				
+				System.out.println("Product Name = " + productName);
 				
 				 String postDetail = "", postUrl = "", postTitle = "";
 	        	 Statement linkStmt = con.createStatement();
-	        	 ResultSet linkRs = linkStmt.executeQuery("select POST_DTLS, POST_URL, POST_TITLE from table_coupang_prdct_link where PRDCT_ID = '" + rs.getString(2) + "'");
+	        	 ResultSet linkRs = linkStmt.executeQuery("select POST_DTLS, POST_URL, POST_TITLE from table_coupang_prdct_link where PRDCT_ID = '" + productId + "'");
 	        	 while (linkRs.next()) {
 	        		 postDetail = linkRs.getString(1) == null ? "" : linkRs.getString(1);
 	        		 postUrl = linkRs.getString(2) == null ? "" : linkRs.getString(2);
@@ -100,14 +111,15 @@ public class XmlRpcNaverBlog {
 	                 if(linkStmt != null)linkStmt.close();
 	             } catch (SQLException e) {throw new Exception(e.getMessage());}
 				
-	            String imgPath = uploadImg(rs.getString(1), xmlrpcClient);
+	            String imgPath = "";
+	            imgPath = uploadImg(productImage, xmlrpcClient);
 	            System.out.println("imgPath = " + imgPath);
 				
-				String str = rs.getString(6);
-				String tag = rs.getString(4);
-				String hashTag = "#" + rs.getString(4);
+				String str = productName;
+				String tag = keyword;
+				String hashTag = "#" + keyword;
 				String[] prdctNmArray = str.replaceAll(",", "").split("\\ ");
-				String reviewSearch = prdctNmArray[0] + " " + prdctNmArray[1] + " " + prdctNmArray[2];
+				
 				for (int i = 0; i < prdctNmArray.length; i++) {
 					if(prdctNmArray[i].indexOf(tag) == -1) {
 						tag = tag + ", " + prdctNmArray[i];
@@ -118,16 +130,25 @@ public class XmlRpcNaverBlog {
 				System.out.println("convTag = " + convTag);
 				
 				String isRckt = "";
-				if("true".equals(rs.getString(3))){isRckt = "가능한";}else {isRckt = "불가능한";}
+				if("true".equals(productIsRocket)){isRckt = "가능한";}else {isRckt = "불가능한";}
 				
-			    productImage = rs.getString(1);
-				productId = rs.getString(2);
-				rank = rs.getString(5);
-				productUrl = rs.getString(3);
-				keyword = rs.getString(4);
-				productName = rs.getString(6);
-				productPrice = formatter.format(Integer.parseInt(rs.getString(8)));
-				blogDate = String.valueOf(startDate);
+				String[] reviewSearchArray = productName.split("\\ ");
+				String reviewSearch = ""; 
+				switch (reviewSearchArray.length) {
+				case 3:
+					reviewSearch = reviewSearchArray[0] + " " + reviewSearchArray[1] + " " + reviewSearchArray[2];
+					break;
+				case 2:
+					reviewSearch = reviewSearchArray[0] + " " + reviewSearchArray[1];
+					break;
+				case 1:
+					reviewSearch = reviewSearchArray[0];
+					break;
+				default:
+					reviewSearch = productName;
+					break;
+				}
+				System.out.println("reviewSearch = " + reviewSearch);
 				
 				//Get review in Naver cafe
 				String url = "https://search.naver.com/search.naver?sm=top_hty&fbm=1&ie=utf8&query=" + reviewSearch;
@@ -153,7 +174,7 @@ public class XmlRpcNaverBlog {
 					String[] reviewArray = review.split("\\!@#");
 					String[] reviewUrlArray = review_url.split("\\!@#");
 //					for (int i = 0; i < reviewArray.length; i++) {
-						reviewSB.append(reviewArray[0] + reviewUrlArray[0] + "<br />");
+						reviewSB.append(reviewArray[1] + reviewUrlArray[1] + "<br />");
 //					}
 				} catch (Exception e) {}
 				//
@@ -260,13 +281,10 @@ public class XmlRpcNaverBlog {
             
         }catch(Exception e) {
         	try {
-        		
 				con.rollback();
-			} catch (SQLException e1) {
-			}
-            String update_query_error = "UPDATE `db_api`.`table_coupang_prdct` SET ISSUE_CODE = ?,  BLOG_DATE = ? WHERE PRDCT_ID = ?";
-            try {
-            	System.out.println("rollback!!");
+				
+	            String update_query_error = "UPDATE `db_api`.`table_coupang_prdct` SET ISSUE_CODE = ?,  BLOG_DATE = ? WHERE PRDCT_ID = ?";
+	        	System.out.println("rollback!!");
 				preparedStmt = con.prepareStatement(update_query_error);
 		        preparedStmt.setString (1, "E");
 		        preparedStmt.setString (2, blogDate);
@@ -276,7 +294,6 @@ public class XmlRpcNaverBlog {
 		        con.commit();
 			} catch (SQLException e1) {
 			}
-        	
             e.printStackTrace();
         }finally {
             try{
@@ -297,25 +314,30 @@ public class XmlRpcNaverBlog {
     }
     
 	public static String uploadImg(String remoteImg, XmlRpcClient xmlrpcClient) throws Exception {
-		String[] imgArray = remoteImg.split("\\/");
-		String[] imgNm = imgArray[imgArray.length-1].split("\\.");
-		
-		URL url = new URL(remoteImg);
-		BufferedImage img = ImageIO.read(url);
-		File file = new File(imgArray[imgArray.length-1]);
-		ImageIO.write(img, imgNm[1], file);
-		
-		Vector<Object> params = new Vector<Object>();
-		params.addElement(new String(API_ID));
-		params.addElement(new String(API_ID));
-		params.addElement(new String(API_PASSWORD));
-		
-		Map<String, Object> fileMap = new HashMap<String, Object>();
-		fileMap.put("name", file.getName());
-		fileMap.put("type", new MimetypesFileTypeMap().getContentType(file));
-		fileMap.put("bits", getFileByte(file));
-		params.addElement(fileMap);
-		Map<String, Object> res = (HashMap<String, Object>) xmlrpcClient.execute("metaWeblog.newMediaObject", params);
+		Map<String, Object> res = null;
+		try {
+			String[] imgArray = remoteImg.split("\\/");
+			String[] imgNm = imgArray[imgArray.length-1].split("\\.");
+			
+			URL url = new URL(remoteImg);
+			BufferedImage img = ImageIO.read(url);
+			File file = new File(imgArray[imgArray.length-1]);
+			ImageIO.write(img, imgNm[1], file);
+			
+			Vector<Object> params = new Vector<Object>();
+			params.addElement(new String(API_ID));
+			params.addElement(new String(API_ID));
+			params.addElement(new String(API_PASSWORD));
+			
+			Map<String, Object> fileMap = new HashMap<String, Object>();
+			fileMap.put("name", file.getName());
+			fileMap.put("type", new MimetypesFileTypeMap().getContentType(file));
+			fileMap.put("bits", getFileByte(file));
+			params.addElement(fileMap);
+			res = (HashMap<String, Object>) xmlrpcClient.execute("metaWeblog.newMediaObject", params);
+		}catch(Exception e) {
+			 throw new Exception(e.getMessage());
+		}
 		return (String) res.get("url");
 	}
 	
