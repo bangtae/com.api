@@ -43,6 +43,7 @@ import org.xml.sax.InputSource;
 import com.api.coupang.HmacGenerator;
 
 /**
+ * Product data is Goupang to Tistory
  * Get access token: 
  */
 public class OpenApiTistoryWrite2 {
@@ -148,15 +149,16 @@ public class OpenApiTistoryWrite2 {
 	        	  System.out.println("Data Running..");
 	        	  String convTag = "";
 	        	  StringBuilder content = new StringBuilder();
-	        	  content.append("<h3 style=\"text-align: center;\" data-ke-size=\"size23\"><b>" +keyword + " TOP 100"+ "</b></h3>\r\n" + 
-		        	  		"<p style=\"text-align: center;\"><b>쇼핑몰 랭킹순으로 상품을 간략하게 보여드리며&nbsp;</b></p>\r\n" + 
+	        	  content.append("<p style=\"text-align: center;\"><b>쇼핑몰 랭킹순으로 상품을 간략하게 보여드리며&nbsp;</b></p>\r\n" + 
 		        	  		"<p style=\"text-align: center;\"><b>상품링크를 클릭하시면 자세한 정보나 후기를 보실수</b></p>\r\n" + 
 		        	  		"<p style=\"text-align: center;\"><b>있습니다.</b></p>\r\n" + 
 		        	  		"<p style=\"text-align: center;\"><b>현명한 선택을 하셔서 좋은 제품 구입하시길 바라겠습니다.</b></p>\r\n" + 
 		        	  		"<p style=\"text-align: center;\">&nbsp;</p>");
 	        	  
 		  		  int i=0;
-		          for (; i < list.size()-1; i++) {
+		  		  int productCnt = list.size();
+		  		  String header = "<h3 style=\"text-align: center;\" data-ke-size=\"size23\"><b>" +keyword + " TOP "+ (productCnt+1) +"</b></h3>\r\n";
+		          for (; i < productCnt-1; i++) {
 		        	  Map<String, String> productInfo = list.get(i);
 		        	  System.out.println("Product Name = " + productInfo.get("productName"));
 		        	  
@@ -202,7 +204,7 @@ public class OpenApiTistoryWrite2 {
 			  		params.add(new BasicNameValuePair("output", ""));
 			  		params.add(new BasicNameValuePair("blogName", "best-reviews"));
 			  		params.add(new BasicNameValuePair("title", keyword + " TOP 100"));
-			  		params.add(new BasicNameValuePair("content", content.toString()));
+			  		params.add(new BasicNameValuePair("content", header+content.toString()));
 			  		params.add(new BasicNameValuePair("visibility", "3"));
 			  		params.add(new BasicNameValuePair("category", "872741"));
 			  		params.add(new BasicNameValuePair("published", ""));
