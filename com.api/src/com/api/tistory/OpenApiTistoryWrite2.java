@@ -157,7 +157,7 @@ public class OpenApiTistoryWrite2 {
 	        	  
 		  		  int i=0;
 		  		  int productCnt = list.size();
-		  		  String header = "<h3 style=\"text-align: center;\" data-ke-size=\"size23\"><b>" +keyword + " TOP "+ (productCnt+1) +"</b></h3>\r\n";
+		  		  String header = "<h3 style=\"text-align: center;\" data-ke-size=\"size23\"><b>" +keyword + " TOP "+ productCnt +"</b></h3>\r\n";
 		          for (; i < productCnt-1; i++) {
 		        	  Map<String, String> productInfo = list.get(i);
 		        	  System.out.println("Product Name = " + productInfo.get("productName"));
@@ -203,7 +203,7 @@ public class OpenApiTistoryWrite2 {
 			  		params.add(new BasicNameValuePair("access_token", ACCESS_TOKEN));
 			  		params.add(new BasicNameValuePair("output", ""));
 			  		params.add(new BasicNameValuePair("blogName", "best-reviews"));
-			  		params.add(new BasicNameValuePair("title", keyword + " TOP 100"));
+			  		params.add(new BasicNameValuePair("title", keyword + " TOP " + productCnt));
 			  		params.add(new BasicNameValuePair("content", header+content.toString()));
 			  		params.add(new BasicNameValuePair("visibility", "3"));
 			  		params.add(new BasicNameValuePair("category", "872741"));
