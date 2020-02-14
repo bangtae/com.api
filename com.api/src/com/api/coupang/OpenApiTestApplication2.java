@@ -32,14 +32,15 @@ import java.util.Calendar;
 public final class OpenApiTestApplication2 {
     private final static String REQUEST_METHOD = "GET";
     private final static String DOMAIN = "https://api-gateway.coupang.com";
-    private final static String URL = "/v2/providers/affiliate_open_api/apis/openapi/products/search?limit=100&keyword=";
+    private final static String URL = "/v2/providers/affiliate_open_api/apis/openapi/products/search?limit=50&keyword=";
     // Replace with your own ACCESS_KEY and SECRET_KEY
     private final static String ACCESS_KEY = "";
     private final static String SECRET_KEY = "";
 
     public static void main(String[] args) throws IOException {
     	//------------------------ Product Data is Coupang API -> List, Map ------------------------
-    	String keyword = "공기정화";
+    	String keyword = "보드게임";
+    	String postDetail = "오뚜기가 왜 갓뚜기인지 보러오세요~";
     	String convertKeyword = URLEncoder.encode(keyword, "utf-8");
     	System.out.println("convertKeyword = " + convertKeyword);
 
@@ -134,9 +135,10 @@ public final class OpenApiTestApplication2 {
 				          // execute the preparedstatement
 				          preparedStmt.execute();
 				          
-			            query = "INSERT INTO `db_api`.`table_coupang_prdct_link` (`PRDCT_ID`) VALUES (?)";
+			            query = "INSERT INTO `db_api`.`table_coupang_prdct_link` (`PRDCT_ID`, POST_TITLE) VALUES (?, ?)";
 			            PreparedStatement pStmt = conn.prepareStatement(query);
 			            pStmt.setString (1, productId);
+			            pStmt.setString (2, postDetail);
 			            pStmt.execute();
 			            
 			            try{

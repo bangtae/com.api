@@ -73,7 +73,7 @@ public class XmlRpcNaverBlog {
 			// here sonoo is database name, root is username and password
 			stmt = con.createStatement();
 			rs = stmt.executeQuery("select PRDCT_IMAGE, PRDCT_ID, PRDCT_URL, KEYWORD, 'RANK', PRDCT_NM, ISSUE_CODE, PRDCT_PRIC, IS_RCKT, INSRT_DATE, BLOG_DATE "
-					+ "from table_coupang_prdct where ISSUE_CODE = 'R'");
+					+ "from table_coupang_prdct where ISSUE_CODE = 'R' order by rand()");
 			
 	         Calendar calendar = Calendar.getInstance();
 	         java.sql.Date startDate = new java.sql.Date(calendar.getTime().getTime());
@@ -112,7 +112,11 @@ public class XmlRpcNaverBlog {
 	             } catch (SQLException e) {throw new Exception(e.getMessage());}
 				
 	            String imgPath = "";
-	            imgPath = uploadImg(productImage, xmlrpcClient);
+	            try {
+	            	imgPath = uploadImg(productImage, xmlrpcClient);
+	            }catch(Exception e){
+	            	System.out.println("uploadImg error = " + e.getMessage());
+	            }
 	            System.out.println("imgPath = " + imgPath);
 				
 				String str = productName;
@@ -173,8 +177,11 @@ public class XmlRpcNaverBlog {
 					
 					String[] reviewArray = review.split("\\!@#");
 					String[] reviewUrlArray = review_url.split("\\!@#");
+					
+					reviewSB.append("■ 네이버카페 리뷰요약<br />");
 //					for (int i = 0; i < reviewArray.length; i++) {
-						reviewSB.append(reviewArray[1] + reviewUrlArray[1] + "<br />");
+						reviewSB.append(reviewArray[1] + "<br />");
+						//reviewSB.append(reviewArray[1] + reviewUrlArray[1] + "<br />");
 //					}
 				} catch (Exception e) {}
 				//
@@ -188,36 +195,64 @@ public class XmlRpcNaverBlog {
 					doc = Jsoup.connect(url).get();
 					Elements element = doc.select("ul.lst_total");
 					
+					viewSB.append("■ 네이버VIEW 리뷰요약<br />");
 					for(Element el : element.select("li")) {
-						viewSB.append(el.getElementsByClass("api_txt_lines dsc_txt").text() + el.getElementsByClass("elss web_url"));
+						viewSB.append(el.getElementsByClass("api_txt_lines dsc_txt").text() + "<br />");
+//						viewSB.append(el.getElementsByClass("api_txt_lines dsc_txt").text() + el.getElementsByClass("elss web_url"));
 						break;
 					}
 				} catch (IOException e) {}
 				//
-
+				
+				//Get review in Daum Blog
+				url = "https://search.daum.net/search?w=blog&m=board&collName=blog_total&q="+ reviewSearch +"&spacing=0&DA=BR1";
+				doc = null;
+				StringBuilder daumBlogSB = new StringBuilder();
+				
+				try {
+					doc = Jsoup.connect(url).get();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				
+				Elements element = doc.select("div.g_comp");
+				
+				daumBlogSB.append("■ 다음블로그 리뷰요약<br />");
+				for(Element el : element.select("div.type_fulltext")) {
+					for(Element elLi : el.select("li.fst")) {	
+						daumBlogSB.append(elLi.getElementsByClass("f_eb desc").text() + "<br />");
+						break;
+					}
+				}
+				//
+				
 				contents = new HashMap<String, String>();
 	            contents.put("categories", "상품소개"); // 카테고리 텍스트
 	            contents.put("title", productName+ "(" + productPrice + "원)\r\n"); // 제목
 	            contents.put("description", 
 	        			"<div style=\"clear: both; text-align: center;\">\r\n" + 
+//	        			postDetail+"<a href=\""+postUrl+"\">"+postTitle+"</a>" + 
 	        			"<!-- 이미지 -->\r\n" + 
 	        			"\r\n" + 
 	        			"<br />\r\n" + 
+	        			postTitle +
 	        			"<table align=\"center\" cellpadding=\"0\" cellspacing=\"0\" class=\"tr-caption-container\" style=\"margin-left: auto; margin-right: auto; text-align: center;\"><tbody>\r\n" + 
 	        			"<tr><td style=\"text-align: center;\"><a href=\""+productImage+"\" imageanchor=\"1\" style=\"margin-left: auto; margin-right: auto;\"><img alt=\""+productName+"\" border=\"0\" data-original-height=\"662\" data-original-width=\"662\" height=\"640\" src=\""+imgPath+"\" title=\""+productName+"\" width=\"640\" /></a></td></tr>\r\n" + 
 	        			"<tr><td class=\"tr-caption\" style=\"text-align: center;\">"+productName+"</td></tr>\r\n" + 
 	        			"</tbody></table>\r\n" + 
-	        			""+postDetail+"<a href=\""+postUrl+"\">"+postTitle+"</a>" + 
-	        			reviewSB + 
+	        			"<br />" +
+	        			"▼▼▼ 아래 상품의 리뷰요약은 관련없는 내용도 나올수 있으니.. 유의 부탁드리겠습니다. ▼▼▼<br />" +
+	        			daumBlogSB.toString() + 
+	        			reviewSB.toString() + 
 	        			viewSB.toString() + "<br />" + 
 	        			"<br />\r\n" + 
 	        			"<!-- 가격 -->\r\n" + 
-	        			"판매가: "+productPrice+"원<br />\r\n" + 
+	        			"<b>판매가: "+productPrice+"원</b><br />\r\n" + 
 	        			"<br />\r\n" + 
 	        			"<!-- 상품요약설명 -->\r\n" + 
-	        			"해당상품은 로켓배송이 "+ isRckt +" 상품이며<br />\r\n" + 
-	        			"자세한 상품설명 및 후기는 <a href=\""+productUrl+"\" target=\"_blank\">클릭</a> 부탁드리<br />\r\n" + 
-	        			"겠습니다.<br />\r\n" + 
+	        			"<b>해당상품은 로켓배송이 "+ isRckt +" 상품이며</b><br />\r\n" + 
+	        			"<b>자세한 상품설명 및 후기는 <a href=\""+productUrl+"\" target=\"_blank\">클릭</a> 부탁드리</b><br />\r\n" + 
+	        			"<b>겠습니다.</b><br />\r\n" + 
 	        			"<!-- 배너 -->\r\n" + 
 	        			"<a href=\""+productUrl+"\" target=\"_blank\"><img alt=\""+productName+"\" height=\"200\" src=\""+productImage+"\" width=\"200\" /></a><br />\r\n" + 
 	        			"<br />\r\n" + 

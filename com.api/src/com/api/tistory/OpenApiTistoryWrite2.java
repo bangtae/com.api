@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -44,7 +45,7 @@ import com.api.coupang.HmacGenerator;
 
 /**
  * Product data is Goupang to Tistory
- * Get access token: https://www.tistory.com/oauth/authorize?client_id=becd312217316e7482d8d8ed290d3300&redirect_uri=https://best-reviews.tistory.com&response_type=token
+ * Get access token: 
  */
 public class OpenApiTistoryWrite2 {
 	private final static String ACCESS_TOKEN = "";
@@ -78,7 +79,7 @@ public class OpenApiTistoryWrite2 {
           
           String query = "";
       	  Statement stmt = conn.createStatement();
-      	  ResultSet rs = stmt.executeQuery("select KEYWORD from table_tistory_prdct where STATUS_MSG is null OR STATUS_MSG = '' LIMIT 10");
+      	  ResultSet rs = stmt.executeQuery("select KEYWORD from table_tistory_prdct where STATUS_MSG is null OR STATUS_MSG = '' order by rand() LIMIT 15");
       	  
       	  while (rs.next()) {
 		
@@ -157,10 +158,15 @@ public class OpenApiTistoryWrite2 {
 	        	  
 		  		  int i=0;
 		  		  int productCnt = list.size();
+		  		  int[] priceArray = new int[productCnt-1];
 		  		  String header = "<h3 style=\"text-align: center;\" data-ke-size=\"size23\"><b>" +keyword + " TOP "+ (productCnt-1) +"</b></h3>\r\n";
 		          for (; i < productCnt-1; i++) {
+		        	  
 		        	  Map<String, String> productInfo = list.get(i);
-		        	  System.out.println("Product Name = " + productInfo.get("productName"));
+		        	  //System.out.println("Product Name = " + productInfo.get("productName"));
+		        	  
+		        	  //Max, Min Price
+		        	  priceArray[i] = Integer.parseInt(productInfo.get("productPrice"));
 		        	  
 	//	        	  System.out.println("Product Price Processing..");
 		        	  String productPrice = formatter.format(Integer.parseInt(productInfo.get("productPrice")));
@@ -198,12 +204,32 @@ public class OpenApiTistoryWrite2 {
 		          	HttpClient httpclient = HttpClients.createDefault();
 		          	HttpPost httppost = new HttpPost("https://www.tistory.com/apis/post/write");
 				
+		          	//Max, Min Price
+		          	//금액 오류발생!!
+//		    		Arrays.sort(priceArray); // 배열 정렬
+//		    		String min = formatter.format(priceArray[0]);
+//		    		String max = formatter.format(priceArray[priceArray.length - 1]);
+		    		
+		    		int max = priceArray[0]; //최대값
+		    		int min = priceArray[0]; //최소값
+		    				
+		    		for(int x=0;x<priceArray.length;x++) {
+		    		    if(max<priceArray[x]) {
+		    		    	max = priceArray[x];
+		    		    }
+		    					
+		    		    if(min>priceArray[x]) {
+		    		    	min = priceArray[x];
+		    		    }
+		    		}
+		    		//
+		    		
 			  		// Request parameters and other properties.
 			  		List<NameValuePair> params = new ArrayList<NameValuePair>(12);
 			  		params.add(new BasicNameValuePair("access_token", ACCESS_TOKEN));
 			  		params.add(new BasicNameValuePair("output", ""));
 			  		params.add(new BasicNameValuePair("blogName", "best-reviews"));
-			  		params.add(new BasicNameValuePair("title", keyword + " TOP " + (productCnt-1)));
+			  		params.add(new BasicNameValuePair("title", keyword + " 상품랭킹 " + (productCnt-1) + "개(최소" + formatter.format(min) + "~최대" + formatter.format(max) + "원사이)"));
 			  		params.add(new BasicNameValuePair("content", header+content.toString()));
 			  		params.add(new BasicNameValuePair("visibility", "3"));
 			  		params.add(new BasicNameValuePair("category", "872741"));
@@ -226,11 +252,6 @@ public class OpenApiTistoryWrite2 {
 		  			response = httpclient.execute(httppost);
 		  			HttpEntity entity = response.getEntity();
 		  			
-		            String rendValue = String.valueOf(ThreadLocalRandom.current().nextInt(1, 2 + 1)) + "000000";
-					try {
-						Thread.sleep(Integer.parseInt(rendValue)); // 1000 = 1second waiting
-					} catch (InterruptedException e) {throw new Exception(e.getMessage());}
-	
 		  			if (entity != null) {
 		  				try (InputStream instream = entity.getContent()) {
 		  					theString = IOUtils.toString(instream, "UTF-8"); 
@@ -243,11 +264,19 @@ public class OpenApiTistoryWrite2 {
 		          
 		          System.out.println("Insert success!! count = " + i);
 		          
-		          // the mysql update statement
-		          query = "UPDATE `db_api`.`table_tistory_prdct` SET  STATUS_MSG = ? WHERE KEYWORD = ?";
-		          preparedStmt = conn.prepareStatement(query);
-		          preparedStmt.setString (1, theString);
-		          preparedStmt.setString (2, keyword);
+		          if(theString.indexOf("<status>200</status>") != -1) {
+			          // the mysql update statement
+			          query = "UPDATE `db_api`.`table_tistory_prdct` SET  STATUS_MSG = ? WHERE KEYWORD = ?";
+			          preparedStmt = conn.prepareStatement(query);
+			          preparedStmt.setString (1, theString);
+			          preparedStmt.setString (2, keyword);
+			          
+			          preparedStmt.execute();
+			          conn.commit();
+			          
+		          }else {
+		        	  break;
+		          }
 		          
 		        }catch (Exception e){
 		          System.err.println(e.getMessage());
@@ -258,10 +287,17 @@ public class OpenApiTistoryWrite2 {
 		          preparedStmt = conn.prepareStatement(query);
 		          preparedStmt.setString (1, "E");
 		          preparedStmt.setString (2, keyword);
+		          
+		          preparedStmt.execute();
+		          conn.commit();
+		          
+		          break;
 		        }
 	        
-	          preparedStmt.execute();
-	          conn.commit();
+	            String rendValue = String.valueOf(ThreadLocalRandom.current().nextInt(1, 2 + 1)) + "00000";
+				try {
+					Thread.sleep(Integer.parseInt(rendValue)); // 1000 = 1second waiting
+				} catch (Exception e) {}
 	        
 	      	  }//while
       	  
@@ -281,6 +317,7 @@ public class OpenApiTistoryWrite2 {
                 System.out.println("Connection closed !!");
             } catch (SQLException e) {e.printStackTrace();
             }
+            
         }
 		
 		//<tistory><status>400</status><error_message>access_token 이 유효하지 않습니다. []</error_message></tistory>
